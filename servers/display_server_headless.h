@@ -176,6 +176,7 @@ public:
 
 	void virtual_keyboard_show(const String &p_existing_text, const Rect2 &p_screen_rect = Rect2(), VirtualKeyboardType p_type = KEYBOARD_TYPE_DEFAULT, int p_max_length = -1, int p_cursor_start = -1, int p_cursor_end = -1) override {}
 	void virtual_keyboard_hide() override {}
+	virtual Key keyboard_get_keycode_from_physical(Key p_keycode) const override { return p_keycode; };
 
 	void cursor_set_shape(CursorShape p_shape) override {}
 	void cursor_set_custom_image(const Ref<Resource> &p_cursor, CursorShape p_shape = CURSOR_ARROW, const Vector2 &p_hotspot = Vector2()) override {}
