@@ -33,6 +33,7 @@
 #ifdef X11_ENABLED
 
 #include "x11/detect_prime_x11.h"
+#include "x11/godot_icon_x11.h"
 #include "x11/key_mapping_x11.h"
 
 #include "core/config/project_settings.h"
@@ -5568,6 +5569,12 @@ DisplayServerX11::WindowID DisplayServerX11::_create_window(WindowMode p_mode, V
 
 	{
 		wd.x11_window = XCreateWindow(x11_display, RootWindow(x11_display, visualInfo.screen), win_rect.position.x, win_rect.position.y, win_rect.size.width > 0 ? win_rect.size.width : 1, win_rect.size.height > 0 ? win_rect.size.height : 1, 0, visualInfo.depth, InputOutput, visualInfo.visual, valuemask, &windowAttributes);
+
+		int length = 2 + 256 * 256;
+		Atom net_wm_icon = XInternAtom(x11_display, "_NET_WM_ICON", False);
+		Atom cardinal = XInternAtom(x11_display, "CARDINAL", False);
+		XChangeProperty(x11_display, wd.x11_window, net_wm_icon, cardinal, 32, PropModeReplace,
+				(const unsigned char *)godot_icon, length);
 
 		wd.parent = RootWindow(x11_display, visualInfo.screen);
 		XSetWindowAttributes window_attributes_ime = {};
