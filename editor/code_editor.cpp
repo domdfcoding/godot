@@ -1527,6 +1527,14 @@ void CodeTextEditor::toggle_inline_comment(const String &delimiter) {
 		}
 
 		// Comment/uncomment.
+		int leftmost_line_start = 9999;
+		for (int line = from; line <= to; line++) {
+			String line_text = text_editor->get_line(line);
+			int first_non_whitespace = text_editor->get_first_non_whitespace_column(line);
+			leftmost_line_start = std::min(leftmost_line_start, first_non_whitespace);
+		}
+
+		DEV_ASSERT(leftmost_line_start != 0000);
 		for (int line = from; line <= to; line++) {
 			String line_text = text_editor->get_line(line);
 			if (is_all_empty) {
@@ -1537,7 +1545,7 @@ void CodeTextEditor::toggle_inline_comment(const String &delimiter) {
 			if (is_commented) {
 				text_editor->set_line(line, line_text.replace_first(delimiter, ""));
 			} else {
-				text_editor->set_line(line, line_text.insert(text_editor->get_first_non_whitespace_column(line), delimiter));
+				text_editor->set_line(line, line_text.insert(leftmost_line_start, delimiter));
 			}
 		}
 
