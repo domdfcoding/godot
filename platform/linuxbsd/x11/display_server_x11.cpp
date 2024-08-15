@@ -4599,9 +4599,9 @@ void DisplayServerX11::process_events() {
 				// Set focus when menu window is started.
 				// RevertToPointerRoot is used to make sure we don't lose all focus in case
 				// a subwindow and its parent are both destroyed.
-				if ((xwa.map_state == IsViewable) && !wd.no_focus && !wd.is_popup && _window_focus_check()) {
-					_set_input_focus(wd.x11_window, RevertToPointerRoot);
-				}
+				// if ((xwa.map_state == IsViewable) && !wd.no_focus && !wd.is_popup && _window_focus_check()) {
+				// 	_set_input_focus(wd.x11_window, RevertToPointerRoot);
+				// }
 
 				// Have we failed to set fullscreen while the window was unmapped?
 				_validate_mode_on_map(window_id);
