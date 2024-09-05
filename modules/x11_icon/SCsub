@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+Import('env')
+Import('env_modules')
+env_x11_icon = env_modules.Clone()
+env_x11_icon.add_source_files(env.modules_sources, "*.cpp")
+
+
+def get_icon_header(icon_file: str):
+	import io
+	from  PIL import Image
+	output = io.StringIO()
+
+	image = Image.open(icon_file).convert("RGBA")
+	assert image.size == (256, 256)
+	output.write("unsigned long godot_icon[] = {256, 256, ")
+
+	buf = io.BytesIO(image.tobytes())
+	while True:
+		pixel = buf.read(4)
+		if not pixel: break
+		pixel = pixel[3:] + pixel[:3]
+		output.write(f"0x{pixel.hex()}, ")
+
+	output.write("};")
+
+	return output.getvalue()
+
+with open("../../platform/linuxbsd/x11/godot_icon_x11.h", "w") as fp:
+	fp.write(get_icon_header(env["x11_icon"]))
