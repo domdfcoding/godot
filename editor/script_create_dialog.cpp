@@ -545,6 +545,7 @@ void ScriptCreateDialog::_update_template_menu() {
 					String template_directory;
 					if (template_location == ScriptLanguage::TEMPLATE_PROJECT) {
 						template_directory = EditorPaths::get_singleton()->get_project_script_templates_dir();
+						template_directory = _append_plugin_template_paths(template_directory);
 					} else {
 						template_directory = EditorPaths::get_singleton()->get_script_templates_dir();
 					}
@@ -587,6 +588,22 @@ void ScriptCreateDialog::_update_template_menu() {
 		}
 	}
 	_template_changed(template_menu->get_selected());
+}
+
+String ScriptCreateDialog::_append_plugin_template_paths(String template_directory) {
+	TypedArray<String> editor_plugins = ProjectSettings::get_singleton()->get_setting("editor_plugins/enabled");
+	for (String plugin_cfg_path : editor_plugins) {
+		if (plugin_cfg_path.is_empty()) {
+			continue;
+		}
+		Vector<String> plugin_cfg_path_parts = plugin_cfg_path.rsplit("/", true, 1);
+		if (plugin_cfg_path_parts.is_empty()) {
+			continue;
+		}
+		// WARN_PRINT(plugin_cfg_path_parts[0]);
+		template_directory += (";" + plugin_cfg_path_parts[0] + "/script_templates");
+	}
+	return template_directory;
 }
 
 void ScriptCreateDialog::_update_dialog() {

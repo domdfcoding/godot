@@ -110,6 +110,7 @@ class ScriptCreateDialog : public ConfirmationDialog {
 	void _create_new();
 	void _load_exist();
 	void _update_template_menu();
+	String _append_plugin_template_paths(String template_directory);
 	void _update_dialog();
 	ScriptLanguage::ScriptTemplate _get_current_template() const;
 	Vector<ScriptLanguage::ScriptTemplate> _get_user_templates(const ScriptLanguage *p_language, const StringName &p_object, const String &p_dir, const ScriptLanguage::TemplateLocation &p_origin) const;
