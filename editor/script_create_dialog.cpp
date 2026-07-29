@@ -707,19 +707,21 @@ Vector<ScriptLanguage::ScriptTemplate> ScriptCreateDialog::_get_user_templates(c
 	Vector<ScriptLanguage::ScriptTemplate> user_templates;
 	String extension = p_language->get_extension();
 
-	String dir_path = p_dir.path_join(p_object);
+	for (String &p_dir_part : p_dir.split(";")) {
+		String dir_path = p_dir_part.path_join(p_object);
 
-	Ref<DirAccess> d = DirAccess::open(dir_path);
-	if (d.is_valid()) {
-		d->list_dir_begin();
-		String file = d->get_next();
-		while (file != String()) {
-			if (file.get_extension() == extension) {
-				user_templates.append(_parse_template(p_language, dir_path, file, p_origin, p_object));
+		Ref<DirAccess> d = DirAccess::open(dir_path);
+		if (d.is_valid()) {
+			d->list_dir_begin();
+			String file = d->get_next();
+			while (file != String()) {
+				if (file.get_extension() == extension) {
+					user_templates.append(_parse_template(p_language, dir_path, file, p_origin, p_object));
+				}
+				file = d->get_next();
 			}
-			file = d->get_next();
+			d->list_dir_end();
 		}
-		d->list_dir_end();
 	}
 	return user_templates;
 }
