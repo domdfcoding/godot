@@ -37,6 +37,7 @@
 #include "x11/key_mapping_x11.h"
 
 #include "core/config/project_settings.h"
+#include "core/io/image_loader.h"
 #include "core/math/math_funcs.h"
 #include "core/string/print_string.h"
 #include "core/string/ustring.h"
@@ -5570,11 +5571,43 @@ DisplayServerX11::WindowID DisplayServerX11::_create_window(WindowMode p_mode, V
 	{
 		wd.x11_window = XCreateWindow(x11_display, RootWindow(x11_display, visualInfo.screen), win_rect.position.x, win_rect.position.y, win_rect.size.width > 0 ? win_rect.size.width : 1, win_rect.size.height > 0 ? win_rect.size.height : 1, 0, visualInfo.depth, InputOutput, visualInfo.visual, valuemask, &windowAttributes);
 
-		int length = 2 + 256 * 256;
+		String icon_name = GLOBAL_GET("application/config/icon");
 		Atom net_wm_icon = XInternAtom(x11_display, "_NET_WM_ICON", False);
 		Atom cardinal = XInternAtom(x11_display, "CARDINAL", False);
-		XChangeProperty(x11_display, wd.x11_window, net_wm_icon, cardinal, 32, PropModeReplace,
-				(const unsigned char *)godot_icon, length);
+
+		Ref<Image> img;
+		img.instantiate();
+		if (ImageLoader::load_image(icon_name, img) == OK) {
+			DisplayServer::get_singleton()->set_icon(img);
+
+			Vector<long> pd;
+			int w = img->get_width();
+			int h = img->get_height();
+
+			pd.resize(2 + w * h);
+
+			pd.write[0] = w;
+			pd.write[1] = h;
+
+			const uint8_t *r = img->get_data().ptr();
+
+			long *wr = &pd.write[2];
+			uint8_t const *pr = r;
+
+			for (int i = 0; i < w * h; i++) {
+				long v = 0;
+				//    A             R             G            B
+				v |= pr[3] << 24 | pr[0] << 16 | pr[1] << 8 | pr[2];
+				*wr++ = v;
+				pr += 4;
+			}
+			XChangeProperty(x11_display, wd.x11_window, net_wm_icon, cardinal, 32, PropModeReplace,
+					(unsigned char *)pd.ptr(), pd.size());
+		} else {
+			int length = 2 + 256 * 256;
+			XChangeProperty(x11_display, wd.x11_window, net_wm_icon, cardinal, 32, PropModeReplace,
+					(const unsigned char *)godot_icon, length);
+		}
 
 		wd.parent = RootWindow(x11_display, visualInfo.screen);
 		XSetWindowAttributes window_attributes_ime = {};
